@@ -10,32 +10,41 @@ export async function loginAction(prevState: any, formData: FormData) {
   const password = formData.get('password');
 
   try {
-    const res = await fetch(`${API_URL}/login`, {
+    const res = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
+const data = await res.json();
+console.log('Respuesta del login de Laravel:', data);
 
-    if (!res.ok) {
-      return { error: data.message || 'Credenciales inválidas' };
-    }
+// Agregamos data.authorisation?.token que es como lo envía Laravel
+const token = data.authorisation?.token || data.access_token || data.token || data.data?.token || data.data?.access_token;
 
-    // Guardar el token en cookie httpOnly
-    const cookieStore = await cookies();
-    cookieStore.set({
-      name: 'token',
-      value: data.access_token || data.token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 1 semana
-    });
+if (!res.ok || !token) {
+  return { error: data.message || 'Credenciales inválidas o token no encontrado' };
+}
+
+// Guardar el token en cookie httpOnly
+const cookieStore = await cookies();
+cookieStore.set({
+  name: 'token',
+  value: token,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+});
 
   } catch (err) {
     return { error: 'No se pudo conectar con el servidor de autenticación.' };
   }
 
   redirect('/catalog');
+}
+
+export async function logoutAction() {
+  const cookieStore = await cookies();
+  // Borramos la cookie del token
+  cookieStore.delete('token');
 }

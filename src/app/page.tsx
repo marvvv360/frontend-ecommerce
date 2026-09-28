@@ -1,68 +1,121 @@
-import Image from "next/image";
+import Link from 'next/link';
 
-export default function Home() {
+// Interfaz para tipar los productos que vienen de Laravel
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  image?: string;
+}
+
+// Función para obtener los productos desde la API de Laravel
+async function getProducts(): Promise<Product[]> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
+    const res = await fetch(`${apiUrl}/products`, {
+      cache: 'no-store', // Evita caché estática para ver los datos en tiempo real
+    });
+
+    if (!res.ok) {
+      throw new Error('Error al obtener los productos del servidor.');
+    }
+
+    const data = await res.json();
+    // Dependiendo de cómo devuelva Laravel la colección (ej. data.data o directamente data)
+    return Array.isArray(data) ? data : data.data || [];
+  } catch (error) {
+    console.error('Error de conexión con la API:', error);
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const products = await getProducts();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+      {/* Cabecera de la tienda */}
+      <header className="max-w-7xl mx-auto mb-10 flex flex-col sm:flex-row justify-between items-center border-b pb-6">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            Mi E-commerce 🛍️
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-1 text-sm text-gray-500">
+            Encuentra los mejores productos directo desde nuestra API de Laravel.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className="mt-4 sm:mt-0 flex gap-4">
+          <Link
+            href="/login"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 border-indigo-600 shadow-sm"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Iniciar Sesión
+          </Link>
+          <Link
+            href="/orders"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm"
           >
-            Documentation
-          </a>
+            Mis Órdenes
+          </Link>
         </div>
+      </header>
+
+      {/* Contenido Principal: Listado de Productos */}
+      <main className="max-w-7xl mx-auto">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Catálogo de Productos</h2>
+
+        {products.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <p className="text-gray-500 text-lg">
+              No hay productos disponibles en este momento o la API de Laravel no está encendida.
+            </p>
+            <p className="text-sm text-gray-400 mt-2">
+              Asegúrate de ejecutar <code className="bg-gray-100 px-2 py-1 rounded">php artisan serve</code> en tu backend.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col justify-between transition hover:shadow-lg"
+              >
+                <div>
+                  <div className="h-48 bg-gray-200 w-full flex items-center justify-center text-gray-400">
+                    {/* Imagen de respaldo si no hay URL */}
+                    <span>Sin imagen</span>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 truncate">
+                      {product.name}
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                      {product.description || 'Sin descripción disponible.'}
+                    </p>
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="text-xl font-bold text-indigo-600">
+                        ${Number(product.price).toFixed(2)}
+                      </span>
+                      <span className="text-xs font-semibold px-2 py-1 bg-green-100 text-green-800 rounded">
+                        Stock: {product.stock}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 pt-0">
+                  <Link
+                    href={`/catalog/${product.id}`}
+                    className="w-full block text-center bg-gray-900 text-white text-sm font-medium py-2 px-4 rounded hover:bg-gray-800 transition"
+                  >
+                    Ver Detalle
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

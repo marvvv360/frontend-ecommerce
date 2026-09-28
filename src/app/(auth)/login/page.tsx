@@ -24,7 +24,7 @@ export default function LoginPage() {
               type="email" 
               name="email" 
               required 
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="tu@correo.com"
             />
           </div>
@@ -35,7 +35,7 @@ export default function LoginPage() {
               type="password" 
               name="password" 
               required 
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
               placeholder="••••••••"
             />
           </div>
@@ -48,6 +48,14 @@ export default function LoginPage() {
             {isPending ? 'Iniciando sesión...' : 'Entrar'}
           </button>
         </form>
+        <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+            ¿No tienes una cuenta?{' '}
+            <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+              Regístrate aquí
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
