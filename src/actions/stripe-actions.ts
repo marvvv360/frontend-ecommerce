@@ -28,9 +28,15 @@ export async function createStripeCheckoutAction(items: { product_id: number; qu
         'Accept': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ 
-        amount, 
-        product_name 
+      body: JSON.stringify({
+        items: items.map(item => ({
+            id: item.product_id,
+            quantity: item.quantity,
+            price: item.price,
+            name: item.name,
+        })),
+    amount,
+    product_name
       }),
     });
 

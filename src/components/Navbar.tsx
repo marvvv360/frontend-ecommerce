@@ -91,6 +91,15 @@ export default function Navbar() {
                       {user?.email || user?.user?.email || 'Correo no disponible'}
                     </p>
                   </div>
+                  {/* Ejemplo dentro de tu menú desplegable */}
+                  <div className="py-1">
+                    <Link
+                      href="/orders"
+                      className="block px-4 py-2 text-sm text-white hover:bg-gray-700 transition-colors"
+                      >
+                      Historial de Compras
+                      </Link>
+                  </div>
                   <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors mt-1"
