@@ -21,14 +21,24 @@ Aplicación web de comercio electrónico desarrollada como cliente frontend util
 Antes de ejecutar este proyecto en tu entorno local, asegúrate de tener instalado:
 - Node.js (Versión 18 o superior recomendada).
 - npm o yarn.
-- El backend de Laravel en ejecución (por defecto en http://127.0.0.1:8000).
+- El backend de Laravel en ejecución (disponible en [api-ecommerce-stripe](https://github.com/marvvv360/api-ecommerce-stripe.git), configurado por defecto en `http://127.0.0.1:8000`).
+
+---
+
+## 🔗 Integración con el Backend
+
+Este proyecto frontend funciona en conjunto con la API RESTful desarrollada en Laravel, la cual gestiona la autenticación, el procesamiento de pagos con Stripe y la persistencia de las órdenes de compra. 
+
+Para que la aplicación funcione correctamente, es indispensable tener activo y configurado el repositorio del backend:
+- **Repositorio Backend:** [api-ecommerce-stripe](https://github.com/marvvv360/api-ecommerce-stripe.git)
+- **Comunicación:** El cliente consume los endpoints protegidos mediante tokens JWT y Server Actions que envían carritos multi-producto y procesan pasarelas de pago sincronizadas.
 
 ---
 
 ## 🛠️ Instalación y Configuración
 
 1. Clona este repositorio:
-   git clone <url-del-repositorio>
+   git clone <https://github.com/marvvv360/frontend-ecommerce.git>
    cd frontend-ecommerce
 
 2. Instala las dependencias:
@@ -54,9 +64,9 @@ Antes de ejecutar este proyecto en tu entorno local, asegúrate de tener instala
 
 ## 📂 Estructura del Proyecto
 
-- `src/app/`: Rutas, páginas y layouts organizados con Next.js App Router (incluyendo grupos de rutas como `(auth)` y vistas dinámicas como `catalog/[id]`).
-- `src/actions/`: Server Actions para mutaciones asíncronas y comunicación segura con el backend (autenticación y órdenes).
-- `src/components/`: Componentes reutilizables de interfaz (botones interactivos, elementos de cliente).
+- `src/app/`: Rutas, páginas y layouts organizados con Next.js App Router (incluyendo grupos de rutas como `(auth)`, vistas dinámicas como `catalog/[id]`, y la sección de órdenes en `orders/`).
+- `src/actions/`: Server Actions (`stripe-actions.ts`) para mutaciones asíncronas, procesamiento de carritos multi-producto y comunicación segura con el backend.
+- `src/components/`: Componentes reutilizables de interfaz (botones interactivos, menús de usuario, elementos de cliente).
 - `src/context/`: Contexto de React para la administración local del carrito de compras (`CartContext`).
 - `src/middleware.ts`: Middleware de Next.js para la protección de rutas privadas (checkout e historial de compras).
 
@@ -76,9 +86,10 @@ Antes de ejecutar este proyecto en tu entorno local, asegúrate de tener instala
 - Gestión de productos mediante estado local en React.
 - Sincronización automática con el almacenamiento del navegador (`localStorage`).
 
-### 4. Checkout y Pagos
-- Procesamiento de órdenes conectadas directamente a la pasarela de pagos de Stripe.
+### 4. Checkout y Pagos Multi-Producto
+- Procesamiento de órdenes mediante Server Actions (`stripe-actions.ts`) que envían arreglos estructurados de múltiples ítems (`id`, `quantity`, `price`, `name`) hacia la pasarela de pagos de Stripe y la API de Laravel.
 
-### 5. Historial de Compras
-- Vista protegida para listar las órdenes del usuario autenticado.
-- Implementación de componentes `Suspense` para optimizar el rendimiento y la carga asíncrona.
+### 5. Historial Permanente de Compras
+- Vista protegida y estilizada en diseño oscuro (`/orders`) accesible desde el menú de usuario.
+- Visualización detallada por orden que incluye el desglose de múltiples productos adquiridos (precio unitario, subtotal y total global) y el estado dinámico de la transacción (`pending`).
+- Enlaces de navegación fluidos hacia el catálogo de la tienda.
